@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Temporizador Ajustável</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #ffffff;
+            color: #333333;
+        }
+        .setup {
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .setup input {
+            width: 60px;
+            padding: 8px;
+            font-size: 1rem;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .timer {
+            font-size: 5rem;
+            font-weight: bold;
+            margin-bottom: 20px;
+            font-variant-numeric: tabular-nums;
+        }
+        .controls {
+            display: flex;
+            gap: 10px;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            border-radius: 8px;
+            background-color: #f0f0f0;
+            color: #333;
+            transition: background-color 0.2s;
+        }
+        button:hover { background-color: #e0e0e0; }
+        .btn-start { background-color: #007BFF; color: white; }
+        .btn-start:hover { background-color: #0056b3; }
+        .btn-set { background-color: #28a745; color: white; }
+        .btn-set:hover { background-color: #218838; }
+    </style>
+</head>
+<body>
+
+    <div class="setup">
+        <label for="input-minutos">Tempo (min):</label>
+        <input type="number" id="input-minutos" value="25" min="1">
+        <button class="btn-set" id="btn-ajustar">Ajustar</button>
+    </div>
+
+    <div class="timer" id="display">25:00</div>
+    
+    <div class="controls">
+        <button class="btn-start" id="btn-iniciar">Iniciar</button>
+        <button id="btn-pausar">Pausar</button>
+        <button id="btn-zerar">Zerar</button>
+    </div>
+
+    <script>
+        let tempoInicial = 25 * 60; 
+        let tempoRestante = tempoInicial;
+        let timerId = null;
+
+        // Captura os elementos da tela
+        const display = document.getElementById('display');
+        const inputMinutos = document.getElementById('input-minutos');
+        const btnAjustar = document.getElementById('btn-ajustar');
+        const btnIniciar = document.getElementById('btn-iniciar');
+        const btnPausar = document.getElementById('btn-pausar');
+        const btnZerar = document.getElementById('btn-zerar');
+
+        // Função para atualizar os números na tela
+        function atualizarTela() {
+            const minutos = Math.floor(tempoRestante / 60);
+            const segundos = tempoRestante % 60;
+            display.textContent = `${String(minutos).padStart(2, '0')}:${String(segundos).padStart(2, '0')}`;
+        }
+
+        // Função auxiliar para pausar
+        function pausarTimer() {
+            if (timerId !== null) {
+                clearInterval(timerId);
+                timerId = null;
+            }
+        }
+
+        // Ação do botão Ajustar
+        btnAjustar.addEventListener('click', () => {
+            let novosMinutos = parseInt(inputMinutos.value);
+            
+            if (isNaN(novosMinutos) || novosMinutos < 1) {
+                novosMinutos = 1;
+                inputMinutos.value = 1;
+            }
+            
+            pausarTimer(); 
+            tempoInicial = novosMinutos * 60; 
+            tempoRestante = tempoInicial;
+            atualizarTela();
+        });
+
+        // Ação do botão Iniciar
+        btnIniciar.addEventListener('click', () => {
+            if (timerId !== null) return; 
+            
+            timerId = setInterval(() => {
+                if (tempoRestante > 0) {
+                    tempoRestante--;
+                    atualizarTela();
+                } else {
+                    pausarTimer();
+                    alert('O tempo acabou! Hora de uma pausa.');
+                }
+            }, 1000);
+        });
+
+        // Ação do botão Pausar
+        btnPausar.addEventListener('click', () => {
+            pausarTimer();
+        });
+
+        // Ação do botão Zerar
+        btnZerar.addEventListener('click', () => {
+            pausarTimer();
+            tempoRestante = tempoInicial; 
+            atualizarTela();
+        });
+
+        // Inicializa a tela quando abre a página
+        atualizarTela();
+    </script>
+</body>
+</html>
